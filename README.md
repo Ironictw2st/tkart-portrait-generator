@@ -42,8 +42,8 @@ own NVIDIA GPU**.
 ### 1. Clone the repository
 
 ```bash
-git clone <YOUR_REPO_URL> tk3k-portrait-generator
-cd tk3k-portrait-generator
+git clone https://github.com/Ironictw2st/tkart-portrait-generator.git
+cd tkart-portrait-generator
 ```
 
 ### 2. Create and activate a virtual environment
@@ -95,8 +95,10 @@ models/sd_xl_base_1.0.safetensors
 
 Download `tk3k_portrait_v3.safetensors`:
 
-> **➡ Download:** `<LORA_DOWNLOAD_URL>`
-> *(Repo owner: replace this with your Hugging Face / Google Drive / GitHub Release link.)*
+> **➡ Download** (Hugging Face): <https://huggingface.co/Ironictw2st/tk_3k_portraits>
+>
+> Grab `tk3k_portrait_v3.safetensors` (direct link:
+> <https://huggingface.co/Ironictw2st/tk_3k_portraits/resolve/main/tk3k_portrait_v3.safetensors>)
 
 Save it as:
 ```
@@ -175,7 +177,7 @@ python scripts/upscale.py <in.png> <out.png> "your prompt" [denoise=0.35] [targe
 ## Project structure
 
 ```
-tk3k-portrait-generator/
+tkart-portrait-generator/
 ├── start.bat                # Windows launcher (opens the browser too)
 ├── requirements.txt
 ├── README.md

@@ -2,10 +2,10 @@ Place the trained LoRA checkpoint here as:
 
     output/v3/tk3k_portrait_v3.safetensors   (~436 MB)
 
-Download link (set by the repo owner — see the main README "Download the models"
-section for the current URL):
+Download from Hugging Face:
 
-    <LORA_DOWNLOAD_URL>
+    https://huggingface.co/Ironictw2st/tk_3k_portraits
+    (direct: https://huggingface.co/Ironictw2st/tk_3k_portraits/resolve/main/tk3k_portrait_v3.safetensors)
 
 The app's LoRA dropdown lists every *.safetensors found in this folder, so you can
 drop additional epoch checkpoints here too (e.g. tk3k_portrait_v3-000006.safetensors).
