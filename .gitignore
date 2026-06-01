@@ -1,0 +1,42 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# --- Secrets / machine-specific (NEVER commit) ---
+.env
+*.key
+*.pem
+SSH.txt
+SSHOverTCP.txt
+.sls_jobid
+
+# --- Large model weights: download separately, see README ---
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.onnx
+
+# --- Generated output ---
+output/ui/
+output/mod/
+output/artsets/
+output/samples*/
+output/test/
+output/calib*/
+output/polished/
+*.log
+
+# --- Archives / bundles ---
+*.tar.gz
+*.zip
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini

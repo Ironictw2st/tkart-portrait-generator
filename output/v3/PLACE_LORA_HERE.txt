@@ -1,0 +1,13 @@
+Place the trained LoRA checkpoint here as:
+
+    output/v3/tk3k_portrait_v3.safetensors   (~436 MB)
+
+Download link (set by the repo owner — see the main README "Download the models"
+section for the current URL):
+
+    <LORA_DOWNLOAD_URL>
+
+The app's LoRA dropdown lists every *.safetensors found in this folder, so you can
+drop additional epoch checkpoints here too (e.g. tk3k_portrait_v3-000006.safetensors).
+
+This file is intentionally NOT committed to git (too large). See the main README.

@@ -1,0 +1,8 @@
+Place the SDXL base checkpoint here as:
+
+    models/sd_xl_base_1.0.safetensors   (~6.5 GB)
+
+Download from Hugging Face (free account required, accept the license):
+    https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/blob/main/sd_xl_base_1.0.safetensors
+
+This file is intentionally NOT committed to git (too large). See the main README.

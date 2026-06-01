@@ -1,0 +1,35 @@
+# TW3K Portrait Generator — Python dependencies
+#
+# IMPORTANT: torch/torchvision must be the CUDA build. The --extra-index-url below
+# pulls the CUDA 12.1 wheels. If you have a different CUDA version, change cu121 to
+# match (e.g. cu118) — see https://pytorch.org/get-started/locally/
+#
+# Install with:   pip install -r requirements.txt
+--extra-index-url https://download.pytorch.org/whl/cu121
+
+torch==2.4.0+cu121
+torchvision==0.19.0+cu121
+
+diffusers==0.32.1
+transformers==4.54.1
+accelerate==1.6.0
+safetensors==0.4.5
+huggingface-hub==0.34.3
+
+gradio==6.15.2
+gradio_client==2.5.0
+
+# numpy pinned <2: torch 2.4.0 wheels are built against NumPy 1.x and emit a
+# "module compiled using NumPy 1.x cannot be run in NumPy 2.x" warning (and can crash)
+# under NumPy 2. Pinning to 1.26.x avoids it.
+numpy==1.26.4
+Pillow==12.2.0
+
+# Background removal + export (export_proper.py / Transparent-BG tab)
+opencv-python==4.10.0.84
+rembg==2.0.75
+onnxruntime==1.26.0
+
+# Optional: faster attention. Version must match torch 2.4.0. Remove this line if it
+# fails to install — diffusers falls back to standard attention automatically.
+xformers==0.0.27.post2
