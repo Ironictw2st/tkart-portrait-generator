@@ -219,4 +219,5 @@ tk3k-portrait-generator/
 - The `tk3k_portrait` LoRA was trained on art from the *Total War: THREE KINGDOMS* SAD
   modpack. This is **non-commercial fan content**; *Total War: THREE KINGDOMS* and its art
   are property of their respective owners. Respect the original mod's and game's terms.
-- App/scripts in this repo: add your preferred license here (e.g. MIT) before publishing.
+- App/scripts in this repo are released under the [MIT License](LICENSE). (The MIT
+  license covers the code only — not the SDXL base model or the LoRA weights.)
