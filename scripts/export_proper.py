@@ -77,8 +77,16 @@ LARGE_MULT = 1.6
 # 52x75 content @ bottom 20 (small). Types absent here fill the whole canvas.
 STILL_FRAME = {
     "mini":           {"content": (23, 28),   "bottom": 0},
-    "bobbleheads":    {"content": (54, 74),   "bottom": 20},
     "unitcards":      {"content": (78, 222),  "bottom": 1},
+}
+
+# Circular framing (bobbleheads). The game shows these inside a round gold ring, so a
+# head+shoulders crop with flat edges looks wrong. Instead: scale to a fixed head size
+# (face-anchored), centre the head, then apply a soft circular alpha mask so the shoulders
+# fade out and only the round head remains — matching the source, which shows just the head.
+# `radius`/`circle_cy` define the mask circle; the large/ variant scales everything ×LARGE_MULT.
+STILL_CIRCLE = {
+    "bobbleheads": {"face_h": 34, "face_cy": 88, "circle_cy": 82, "radius": 36, "feather": 4},
 }
 
 # Face-anchored framing (the half-body stills). The source mod frames these by a consistent
@@ -172,6 +180,21 @@ def place_in_frame(region: Image.Image, canvas_wh, content_wh, bottom: int) -> I
     return canvas
 
 
+def circle_mask(img: Image.Image, cx, cy, radius, feather=4) -> Image.Image:
+    """Multiply the image's alpha by a soft-edged circle: fully opaque inside
+    `radius - feather`, fading to 0 at `radius`. Removes flat edges so the still sits
+    cleanly inside a round ring (bobbleheads)."""
+    import numpy as np
+    a = np.asarray(img.split()[3], dtype=np.float32)
+    H, W = a.shape
+    yy, xx = np.ogrid[:H, :W]
+    dist = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
+    m = np.clip((radius - dist) / max(feather, 1), 0.0, 1.0)
+    out_a = Image.fromarray((a * m).astype("uint8"))
+    r, g, b, _ = img.split()
+    return Image.merge("RGBA", (r, g, b, out_a))
+
+
 def place_by_face(fig: Image.Image, face, canvas_wh, face_h_out, face_cy_out) -> Image.Image:
     """Scale `fig` so its detected face is `face_h_out` px tall, then place it on a
     transparent `canvas_wh` with the face horizontally centred and its CENTRE at
@@ -232,6 +255,18 @@ def export(src: Path, char_id: str, out_root: Path, model: str) -> Path:
         d = base / "stills" / name
         (d / "large").mkdir(parents=True, exist_ok=True)
         lw, lh = round(bw * LARGE_MULT), round(bh * LARGE_MULT)
+
+        cc = STILL_CIRCLE.get(name)
+        if cc:
+            # face-anchored head, then soft circular mask so it fits the round ring.
+            m = LARGE_MULT
+            circle_mask(place_by_face(fig, face, (bw, bh), cc["face_h"], cc["face_cy"]),
+                        bw / 2, cc["circle_cy"], cc["radius"], cc["feather"]).save(
+                d / f"{char_id}.png")
+            circle_mask(place_by_face(fig, face, (lw, lh), cc["face_h"] * m, cc["face_cy"] * m),
+                        lw / 2, cc["circle_cy"] * m, cc["radius"] * m, cc["feather"] * m).save(
+                d / "large" / f"{char_id}.png")
+            continue
 
         fc = STILL_FACE.get(name)
         if fc:
