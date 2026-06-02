@@ -9,6 +9,8 @@ export them straight into the mod's **ProperFormat** character folder structure
 The UI is a [Gradio](https://www.gradio.app/) app; generation runs **locally on your
 own NVIDIA GPU**.
 
+![TW3K Portrait Generator — web UI](docs/screenshot.png)
+
 ---
 
 ## Contents

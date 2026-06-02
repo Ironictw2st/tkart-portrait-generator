@@ -25,7 +25,10 @@ gradio_client==2.5.0
 numpy==1.26.4
 Pillow==12.2.0
 
-# Background removal + export (export_proper.py / Transparent-BG tab)
+# Background removal + export (export_proper.py / Transparent-BG tab).
+# NOTE: rembg 2.0.75's metadata asks for numpy>=2.3, so pip prints a harmless
+# "dependency conflict" warning against the numpy<2 pin above. It runs fine with
+# numpy 1.26.4 at runtime — the warning can be ignored.
 opencv-python==4.10.0.84
 rembg==2.0.75
 onnxruntime==1.26.0

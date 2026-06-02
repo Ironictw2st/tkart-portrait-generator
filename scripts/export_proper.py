@@ -78,9 +78,19 @@ LARGE_MULT = 1.6
 STILL_FRAME = {
     "mini":           {"content": (23, 28),   "bottom": 0},
     "bobbleheads":    {"content": (54, 74),   "bottom": 20},
-    "halfbody_small": {"content": (88, 58),   "bottom": 0},
-    "halfbody_large": {"content": (234, 184), "bottom": 0},
     "unitcards":      {"content": (78, 222),  "bottom": 1},
+}
+
+# Face-anchored framing (the half-body stills). The source mod frames these by a consistent
+# HEAD size, NOT by fitting the whole figure — so the figure is scaled so the detected face
+# is `face_h` px tall, then placed with the face horizontally centred and its CENTRE at
+# `face_cy` px from the top; the body runs downward (chest-up) and is clipped at the canvas
+# edge. The large/ variant multiplies both by LARGE_MULT. Calibrated from SAD_artsets
+# halfbody_large/faces (detected face 45px @ cy 114 in 312x250 ≈ an ~86x84 visible head);
+# small derived by the canvas-height ratio (84/250 ≈ 0.336).
+STILL_FACE = {
+    "halfbody_large": {"face_h": 45, "face_cy": 114},
+    "halfbody_small": {"face_h": 15, "face_cy": 38},
 }
 
 
@@ -162,6 +172,23 @@ def place_in_frame(region: Image.Image, canvas_wh, content_wh, bottom: int) -> I
     return canvas
 
 
+def place_by_face(fig: Image.Image, face, canvas_wh, face_h_out, face_cy_out) -> Image.Image:
+    """Scale `fig` so its detected face is `face_h_out` px tall, then place it on a
+    transparent `canvas_wh` with the face horizontally centred and its CENTRE at
+    `face_cy_out` px from the top. The body runs downward (chest-up framing) and is clipped
+    at the canvas edges. Used for the half-body stills, which the source mod frames by a
+    consistent head size rather than by fitting the whole figure."""
+    cx, cy, fh = face
+    s = face_h_out / fh
+    scaled = fig.resize((max(1, round(fig.width * s)), max(1, round(fig.height * s))),
+                        Image.LANCZOS)
+    ox = round(canvas_wh[0] / 2 - cx * s)
+    oy = round(face_cy_out - cy * s)
+    canvas = Image.new("RGBA", canvas_wh, (0, 0, 0, 0))
+    canvas.paste(scaled, (ox, oy), scaled)
+    return canvas
+
+
 def crop_still(fig: Image.Image, name: str, face) -> Image.Image:
     """Face-anchored crop matching the still's target aspect. Boxes may extend past
     the figure edges; PIL fills those with transparency (matching the source margins).
@@ -202,9 +229,22 @@ def export(src: Path, char_id: str, out_root: Path, model: str) -> Path:
     face = detect_face(fig)
     print(f"face anchor (cx,cy,fh) = {tuple(round(v, 1) for v in face)}", flush=True)
     for name, (bw, bh) in STILL_SIZES.items():
-        region = crop_still(fig, name, face)
         d = base / "stills" / name
         (d / "large").mkdir(parents=True, exist_ok=True)
+        lw, lh = round(bw * LARGE_MULT), round(bh * LARGE_MULT)
+
+        fc = STILL_FACE.get(name)
+        if fc:
+            # face-anchored: scale to a fixed HEAD size; body runs downward (chest-up).
+            # large/ = same composition with face params ×LARGE_MULT.
+            place_by_face(fig, face, (bw, bh), fc["face_h"], fc["face_cy"]).save(
+                d / f"{char_id}.png")
+            place_by_face(fig, face, (lw, lh),
+                          fc["face_h"] * LARGE_MULT, fc["face_cy"] * LARGE_MULT).save(
+                d / "large" / f"{char_id}.png")
+            continue
+
+        region = crop_still(fig, name, face)
         frame = STILL_FRAME.get(name)
         if frame:
             # padded placement: figure floats in a content box, not filling the canvas.
@@ -213,14 +253,13 @@ def export(src: Path, char_id: str, out_root: Path, model: str) -> Path:
             cw, ch = frame["content"]
             place_in_frame(region, (bw, bh), (cw, ch), frame["bottom"]).save(
                 d / f"{char_id}.png")
-            place_in_frame(region, (round(bw * LARGE_MULT), round(bh * LARGE_MULT)),
+            place_in_frame(region, (lw, lh),
                            (round(cw * LARGE_MULT), round(ch * LARGE_MULT)),
                            round(frame["bottom"] * LARGE_MULT)).save(
                 d / "large" / f"{char_id}.png")
         else:
             region.resize((bw, bh), Image.LANCZOS).save(d / f"{char_id}.png")
-            region.resize((round(bw * LARGE_MULT), round(bh * LARGE_MULT)), Image.LANCZOS).save(
-                d / "large" / f"{char_id}.png")
+            region.resize((lw, lh), Image.LANCZOS).save(d / "large" / f"{char_id}.png")
 
     print(f"wrote {base}", flush=True)
     return base
